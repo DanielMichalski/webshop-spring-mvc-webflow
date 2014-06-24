@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Class-Path: mysql-connector-java-5.1.20.jar spring-webmvc-3.1.1.RELEAS
+ E.jar spring-asm-3.1.1.RELEASE.jar spring-beans-3.1.1.RELEASE.jar spr
+ ing-core-3.1.1.RELEASE.jar spring-context-3.1.1.RELEASE.jar spring-ao
+ p-3.1.1.RELEASE.jar aopalliance-1.0.jar spring-expression-3.1.1.RELEA
+ SE.jar spring-context-support-3.1.1.RELEASE.jar spring-web-3.1.1.RELE
+ ASE.jar hibernate-validator-4.2.0.Final.jar validation-api-1.0.0.GA.j
+ ar slf4j-api-1.6.1.jar jcl-over-slf4j-1.6.4.jar logback-classic-1.0.2
+ .jar logback-core-1.0.2.jar jstl-1.2.jar spring-webflow-2.1.0.RELEASE
+ .jar commons-logging-1.1.1.jar spring-binding-2.1.0.RELEASE.jar sprin
+ g-js-2.1.0.RELEASE.jar
+

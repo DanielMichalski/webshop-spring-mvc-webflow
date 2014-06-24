@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:mvc="http://www.springframework.org/schema/mvc" 
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xmlns:p="http://www.springframework.org/schema/p"
+    	xmlns:webflow="http://www.springframework.org/schema/webflow-config"  
+		
+		xsi:schemaLocation="
+        	http://www.springframework.org/schema/beans 
+        	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        	http://www.springframework.org/schema/context 
+        	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        	http://www.springframework.org/schema/mvc 
+        	http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+      		http://www.springframework.org/schema/webflow-config
+        	http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd">
+        	
+        
+
+	<!-- Scans for annotated beans -->
+	<context:component-scan base-package="com.peoplewearus.web.spring" />
+
+	<!-- Adds support for annotations -->
+	<mvc:annotation-driven conversion-service="conversionService" />
+
+	<!-- View Resolver -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/web/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- Message source -->
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>/WEB-INF/messages/validation_messages</value>
+				<value>/WEB-INF/messages/messages</value>
+			</list>
+		</property>
+		<property name="cacheSeconds" value="0" />
+	</bean>
+
+	<!-- Conversion service -->
+	<bean id="conversionService"
+		class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<!-- <bean class="se.red.web.spring.converter.UserGroupConverter" /> -->
+			</list>
+		</property>
+	</bean>
+
+	<!-- Connection management -->
+	<bean id="ecommerceManager" class="com.peoplewearus.web.spring.services.ECommerceService">
+		<constructor-arg ref="userRepository"/>
+		<constructor-arg ref="productRepository"/>
+		<constructor-arg ref="adminRepository"/>
+		<constructor-arg ref="orderRepository"/>
+	</bean>
+	
+	<bean id="orderRepository" class="com.peoplewearus.web.spring.db.SqlOrderRepository">
+		<constructor-arg ref="connectionManager" />
+		<constructor-arg ref="userRepository"/>
+		<constructor-arg ref="productRepository"/>
+	</bean>
+
+	<bean id="adminRepository" class="com.peoplewearus.web.spring.db.SqlAdminRepository">
+		<constructor-arg ref="connectionManager" />
+	</bean>
+
+	<bean id="userRepository" class="com.peoplewearus.web.spring.db.SqlUserRepository">
+		<constructor-arg ref="connectionManager" />
+	</bean>
+	
+	<bean id="productRepository" class="com.peoplewearus.web.spring.db.SqlProductRepository">
+		<constructor-arg ref="connectionManager" />
+	</bean>
+
+	<bean id="connectionManager" class="com.peoplewearus.web.spring.db.ConnectionManager"
+		init-method="initialize" destroy-method="destroy">
+		<constructor-arg name="host" value="localhost:3306" />
+		<constructor-arg name="database" value="test" />
+		<constructor-arg name="username" value="root" />
+		<constructor-arg name="password" value="" />
+	</bean>
+	
+	<!-- Webflow Config -->
+		<webflow:flow-executor id="flowExecutor"/>
+		
+		<webflow:flow-registry id="flowRegistry">
+		<webflow:flow-location-pattern value="/WEB-INF/*-flow.xml"/>
+		</webflow:flow-registry>
+		
+	<bean id="flowMappings" class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+		<property name="order" value="0"/>
+		<property name="flowRegistry" ref="flowRegistry"/>
+	</bean>
+		
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerAdapter">
+		<property name="flowExecutor" ref="flowExecutor"/>
+	</bean>
+</beans>

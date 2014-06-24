@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+                          
+                          
+          start-state="login">
+
+
+	<var name="order" class="com.peoplewearus.web.spring.domain.Order"/>
+	
+	<on-start>
+		<evaluate expression="order.setProductsOrdered(shoppingCart.allItems)"/>
+	</on-start>
+	
+		
+	<view-state id="login" view="../web/enterUserInfo.jsp">
+			<transition on="login" to="lookUpUser"/>		
+			<transition on="newUser" to="newUserFlow1"/>			
+	</view-state>
+	
+	<view-state id="newUserFlow1" view="../web/newUser.jsp">
+			<transition on="createNewUser" to="newUserFlow2"/>					
+	</view-state>
+	
+	<action-state id="newUserFlow2">
+		<evaluate expression="userRepository.checkUser(requestParameters.firstName, requestParameters.lastName, requestParameters.co, requestParameters.street, requestParameters.postal, requestParameters.city, requestParameters.country, requestParameters.phone, requestParameters.gender, requestParameters.email, requestParameters.password)"/>
+		
+		<transition on="success" to="newUserFlow3"/>
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.UserAlreadyExistsException"
+		            to="login">
+		            
+		    <set name="flashScope.errorMessage" value="resourceBundle.userAlreadyExistsMessage"/>      
+		                    
+		</transition>
+	
+	</action-state>
+	
+	<action-state id="newUserFlow3">
+		<evaluate expression="userRepository.addUser(requestParameters.firstName, requestParameters.lastName, requestParameters.co, requestParameters.street, requestParameters.postal, requestParameters.city, requestParameters.country, requestParameters.phone, requestParameters.gender, requestParameters.email, requestParameters.password)"/>
+		
+		
+		<transition on="success" to="newUserFlow4">
+		
+			<evaluate expression="order.setUser(user)"/>
+			
+		</transition>
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.UserAlreadyExistsException"
+		            to="login">
+		            
+		<set name="flashScope.errorMessage" value="resourceBundle.userAlreadyExistsMessage"/>        
+		            
+		</transition>
+		            		
+	</action-state>
+	
+	<action-state id="newUserFlow4">
+		<evaluate expression="userRepository.getUser(requestParameters.email)" result="requestScope.user" />
+		
+		<transition on="success" to="showOrder">
+		
+			<evaluate expression="order.setUser(user)"/>
+			
+		</transition>
+	</action-state>
+
+
+	
+	
+	<action-state id="lookUpUser">
+		<evaluate expression="userRepository.findUser(requestParameters.email, requestParameters.password)"
+		          result="requestScope.user" />
+		
+		<transition on="success" to="showOrder">
+			<evaluate expression="order.setUser(user)"/>
+			
+		</transition>
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.UserNotFoundException"
+		            to="login">
+		            
+		<set name="flashScope.errorMessage" value="resourceBundle.userNotFoundMessage"/>        
+		            
+		</transition>
+		           		            		
+	</action-state>
+	
+	<view-state id="showOrder" view="../web/showOrder.jsp">
+		<transition on="removeProduct" to="removeProduct"/>
+		<transition on="nextStep" to="confirmOrder" />
+		<transition on="changeQuantityItem" to="changeQuantityItem" />
+	</view-state>
+	
+	<action-state id="removeProduct">
+		<evaluate expression="order.removeItem(requestParameters.id)"/>
+		
+		<transition to="showOrder"/>		
+	</action-state>
+	
+	
+	<action-state id="changeQuantityItem">
+		<evaluate expression="order.changeQuantityItem(requestParameters.referenceNumber, requestParameters.quantity)" result="requestScope.order" />
+		
+		<transition to="showOrder"/>		
+	</action-state>
+
+	
+	<view-state id="confirmOrder" view="../web/confirmOrder.jsp">
+		<transition on="confirm" to="createOrder"/>
+	</view-state>
+	
+	
+	
+	
+		<action-state id="createOrder">
+		
+		<evaluate expression="orderRepository.makeOrder(order)"/> 	<!--    result="flashScope.order"     -->
+		
+		<transition on="success" to="finished"/>	
+		
+		</action-state>
+		
+		
+		
+	
+	<end-state id="finished" view="../web/orderRaised.jsp"/> 	<!-- KVITTO !!! -->
+	
+	<on-end>		
+		<evaluate expression="shoppingCart.clear()"/>
+	</on-end>
+
+
+</flow>
+		

@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+                          
+                          
+          start-state="adminLogin">
+          
+    <var name="order" class="com.peoplewearus.web.spring.domain.Order"/>
+    <var name="product" class="com.peoplewearus.web.spring.domain.Product"/>
+          
+          
+          	<view-state id="adminLogin" view="../web/enterAdminInfo.jsp">
+			<transition on="adminLogin" to="lookUpAdmin"/>	
+			</view-state>
+			
+			
+			
+		<action-state id="lookUpAdmin">
+		<evaluate expression="adminRepository.authenticate(requestParameters.email, requestParameters.password)"/>
+		
+		<transition on="success" to="adminIndex"/>		
+		
+		<!-- skapa exception -->
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.AdminNotFoundException"
+		            to="adminLogin">
+		            
+		<set name="flashScope.errorMessage" value="resourceBundle.adminNotFoundMessage"/>        
+		            
+		</transition>
+		           		            		
+	</action-state>
+	
+	<action-state id="adminIndex">
+	
+		<evaluate expression="adminRepository.getAllAdmins()" result="flashScope.admins"></evaluate>
+	
+		<transition on="success" to="adminIndex2"></transition>
+	
+	</action-state>
+	
+	
+	<view-state id="adminIndex2" view="../web/adminIndex.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>
+	</view-state>
+	
+	<!-- CREATE PRODUCT -->
+	
+	<view-state id="createProductFlow1" view="../web/createProductForm.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>
+		
+		<transition on="createProductFlow2" to="createProductFlow2"/>
+	
+	</view-state>
+	
+	<action-state id="createProductFlow2">
+
+		<evaluate expression="productRepository.addProduct(requestParameters.productName, requestParameters.referenceNumber, requestParameters.price, requestParameters.brand, requestParameters.description, requestParameters.genre, requestParameters.state)"/>
+		
+		<transition on="success" to="createProductFlow3"/>		
+		
+		<!-- skapa exception -->
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.AdminNotFoundException"
+		            to="adminLogin">
+		            
+		<set name="flashScope.errorMessage" value="resourceBundle.adminNotFoundMessage"/>        
+		            
+		</transition>
+		
+	</action-state>
+	
+	<view-state id="createProductFlow3" view="../web/productConfirmation.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>	
+	</view-state>
+	
+	
+	<!-- UPDATE PRODUCT -->
+	
+	<view-state id="updateProductFlow1" view="../web/getProductForm.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>
+		
+		<transition on="updateProductFlow2" to="updateProductFlow2"/>
+	
+	</view-state>
+	
+	<action-state id="updateProductFlow2">
+
+		<evaluate expression="productRepository.getProduct(requestParameters.referenceNumber)" result="flashScope.product"/>
+		
+		<transition on="success" to="updateProductFlow3"/>		
+		
+		<!-- skapa exception -->
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.AdminNotFoundException"
+		            to="adminLogin">
+		            
+		<set name="flashScope.errorMessage" value="resourceBundle.adminNotFoundMessage"/>        
+		            
+		</transition>
+	</action-state>
+	
+	
+	<view-state id="updateProductFlow3" view="../web/displayUpdateProduct.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>
+		
+		<transition on="updateProductFlow4" to="updateProductFlow4"/>
+	
+	</view-state>
+	
+	
+	<action-state id="updateProductFlow4">
+
+		<evaluate expression="productRepository.updateProduct(requestParameters.productName, requestParameters.referenceNumber, requestParameters.price, requestParameters.brand, requestParameters.description, requestParameters.genre, requestParameters.state)"/>
+		
+		<transition on="success" to="updateProductFlow5"/>
+		
+		<!-- skapa exception -->
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.AdminNotFoundException"
+		            to="adminLogin">
+		            
+		<set name="flashScope.errorMessage" value="resourceBundle.adminNotFoundMessage"/>        
+		            
+		</transition>
+	</action-state>
+	
+	<view-state id="updateProductFlow5" view="../web/updateProductConfirmation.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>	
+	</view-state>
+	
+	
+	<!-- CREATE ADMIN -->
+	
+	<view-state id="createAdminFlow1" view="../web/createAdmin.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>
+		
+		<transition on="createAdminFlow2" to="createAdminFlow2"/>
+	
+	</view-state>
+	
+	<action-state id="createAdminFlow2">
+
+		<evaluate expression="adminRepository.addAdmin(requestParameters.firstName, requestParameters.lastName, requestParameters.email, requestParameters.password)"/>
+		
+		<transition on="success" to="createAdminFlow3"/>		
+		
+		<!-- skapa exception -->
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.AdminNotFoundException"
+		            to="adminLogin">
+		            
+		<set name="flashScope.errorMessage" value="resourceBundle.adminNotFoundMessage"/>        
+		            
+		</transition>
+		
+	</action-state>
+	
+	<view-state id="createAdminFlow3" view="../web/createAdminConfirmation.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>	
+	</view-state>
+	
+	
+	<!-- UPDATE ORDER -->
+	
+	
+	<view-state id="updateOrderFlow1" view="../web/getOrderForm.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>
+		
+		<transition on="updateOrderFlow2" to="updateOrderFlow2"/>
+	
+	</view-state>
+	
+	
+	
+	<action-state id="updateOrderFlow2">
+
+		<evaluate expression="orderRepository.getOrder(requestParameters.email, requestParameters.state)" result="flowScope.order"/>
+		
+		<transition on="success" to="updateOrderFlow3"/>		
+		
+		<!-- skapa exception -->
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.AdminNotFoundException"
+		            to="adminLogin">
+		            
+		<set name="flashScope.errorMessage" value="resourceBundle.adminNotFoundMessage"/>        
+		            
+		</transition>
+	</action-state>
+	
+	
+	<view-state id="updateOrderFlow3" view="../web/displayUpdateOrder.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>
+		
+		<transition on="updateOrderFlow4" to="updateOrderFlow4"/>
+	
+	</view-state>
+	
+	
+	<action-state id="updateOrderFlow4">
+
+		<evaluate expression="orderRepository.updateOrderState(order, requestParameters.state)"/>
+		
+		<transition on="success" to="updateOrderFlow5"/>
+		
+		<!-- skapa exception -->
+		
+		<transition on-exception="com.peoplewearus.web.spring.data.AdminNotFoundException"
+		            to="adminLogin">
+		            
+		<set name="flashScope.errorMessage" value="resourceBundle.adminNotFoundMessage"/>        
+		            
+		</transition>
+	</action-state>
+	
+	<view-state id="updateOrderFlow5" view="../web/updateOrderConfirmation.jsp">
+		<transition on="index" to="adminIndex"/>
+		<transition on="createProductFlow1" to="createProductFlow1"/>
+		<transition on="updateProductFlow1" to="updateProductFlow1"/>
+		<transition on="updateOrderFlow1" to="updateOrderFlow1"/>
+		<transition on="createAdminFlow1" to="createAdminFlow1"/>
+		<transition on="logout" to="logout"/>	
+	</view-state>
+	
+	
+	
+	
+	<!-- END STATE LOGOUT -->
+	
+	<end-state id="logout" view="../web/enterAdminInfo.jsp"/>
+	
+	
+	
+	
+          
+          
+          </flow>
+          
